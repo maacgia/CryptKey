@@ -2,20 +2,26 @@ import os
 import base64
 from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 
+
 KEY_FILE = "ChaCha20Poly1305.key"
+folder_name = "key"
+file_name = os.path.join(folder_name, KEY_FILE)
 
 
 def generate_key():
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
     key = os.urandom(32)
-    with open(KEY_FILE, "wb") as keyfile:
+    with open(file_name, "wb") as keyfile:
         keyfile.write(key)
 
 
 def load_key():
-    if not os.path.exists(KEY_FILE):
+    # en caso de que no exista la key la genera automáticamente
+    if not os.path.exists(file_name):
         generate_key()
 
-    with open(KEY_FILE, "rb") as keyfile:
+    with open(file_name, "rb") as keyfile:
         key = keyfile.read()
     return key
 
@@ -39,19 +45,18 @@ def decrypt_password(encrypted_password):
 
 
 if __name__ == "__main__":
-    action = input("Choose an action (generate, encrypt, decrypt): ").lower()
+    action = input("Elija una acción (generar, cifrar, descifrar): ").lower()
     if action == "generar":
         generate_key()
         print("Clave generada y guardada en 'KEY_FILE'")
     elif action in ("cifrar", "descifrar"):
-
         password = input("Ingrese la contraseña: ")
+
         if action == "cifrar":
             encrypted_password = encrypt_password(password)
-            print(f"Encrypted password: {encrypted_password}")
-
+            print(f"Contraseña cifrada: {encrypted_password}")
         else:
             decrypted_password = decrypt_password(password)
-            print(f"Decrypted password: {decrypted_password}")
-else:
-    print("Invalid action. Please choose 'generate', 'encrypt' or 'decrypt'.")
+            print(f"Contraseña descifrada: {decrypted_password}")
+    else:
+        print("Acción no válida. Por favor, elija 'generar', 'cifrar' o 'descifrar'.")
